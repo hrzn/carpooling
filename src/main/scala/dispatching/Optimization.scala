@@ -68,13 +68,13 @@ object Optimization {
         assert(occupancy <= carCapacity)
 
         if (occupancy == carCapacity) return Set.empty  // we cannot pickup anyone now
-        if (!isApproximatelyFeasible(currentPosition, p.origin, currentTime, p.maxPickupTime)) return Set.empty  // we cannot make it
+        if (p.maxPickupTime.exists(put => !isApproximatelyFeasible(currentPosition, p.origin, currentTime, put))) return Set.empty  // we cannot make it
 
         // Get a better estimate with the actual duration
         val durationOpt = Routing.getDuration(currentPosition, p.origin)
         if (durationOpt.isEmpty) return Set.empty  // there is no path
         val estimatedPickupTime = currentTime.plus(durationOpt.get)
-        if (estimatedPickupTime.getMillis > p.maxPickupTime.getMillis) return Set.empty  // we cannot make it on time
+        if (p.maxPickupTime.exists(put => estimatedPickupTime.getMillis > put.getMillis)) return Set.empty  // we cannot make it on time
 
         val newPassengers = passengers.map( pa => if (pa.id == p.id) pa.pickUp(estimatedPickupTime) else pa )
         val remainingItineraries = computeFeasibleItineraries(newPassengers, p.origin, estimatedPickupTime, carCapacity)

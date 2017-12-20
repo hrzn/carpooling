@@ -62,7 +62,7 @@ case class Car(position: GPSPoint, capacity: Int, itinerary: Itinerary, passenge
 }
 
 
-case class Passenger(id: Int, origin: GPSPoint, destination: GPSPoint, maxPickupTime: DateTime,
+case class Passenger(id: Int, origin: GPSPoint, destination: GPSPoint, maxPickupTime: Option[DateTime],
                      idealTravelTime: Duration, stretchTolerance: Double, pickedUp: Boolean = false,
                      expPickupTime: Option[DateTime] = None, expDropoffTime: Option[DateTime] = None,
                      idealDropoffTime: Option[DateTime] = None, maxDropoffTime: Option[DateTime] = None) {

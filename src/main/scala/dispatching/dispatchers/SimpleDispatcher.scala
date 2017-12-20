@@ -37,8 +37,7 @@ class SimpleDispatcher extends Dispatcher {
     Routing.getPath(rr.origin, rr.destination) match {
       case Some(idealPath) =>
         val idealDuration = Routing.getDuration(idealPath)
-        val maxPickupTime: DateTime = rr.time.plus(idealDuration)
-        val passenger = Passenger(nextPassengerId, rr.origin, rr.destination, maxPickupTime, idealDuration, rr.stretchTolerance)
+        val passenger = Passenger(nextPassengerId, rr.origin, rr.destination, rr.pickupDeadline, idealDuration, rr.stretchTolerance)
         nextPassengerId += 1
 
         // evaluate all cars
