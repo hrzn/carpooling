@@ -21,14 +21,17 @@ class SimpleDispatcher extends Dispatcher {
   // global stats:
   private var totalValidDemands: Int = 0
 
-  // slot stats:
+  // slot stats
+  //   temporary counters
   private var nrValidDemands: Int = 0
   private var nrInvalidDemands: Int = 0
   private var nrDeniedDemands: Int = 0
+  private var sumNrCarsConsidered: Int = 0
+
   private var nrPickups: Int = 0
   private var nrDropoffs: Int = 0
   private var avgStretch: Double = 0D
-  private var sumNrCarsConsidered: Int = 0
+
   private var lastSlotComputeTime: Duration = new Duration(0L)
   private var slotStartWallClockTime: DateTime = new DateTime(0L)
 
@@ -40,9 +43,14 @@ class SimpleDispatcher extends Dispatcher {
         val passenger = Passenger(nextPassengerId, rr.origin, rr.destination, rr.pickupDeadline, idealDuration, rr.stretchTolerance)
         nextPassengerId += 1
 
-        // evaluate all cars
-        // TODO: prune based on distance first
-        val itinerariesForCars = cars.par.flatMap{ car =>
+        // first, prune cars that are too far away to have any chance to pickup this passenger:
+        val candidateCars = rr.pickupDeadline match {
+          case Some(deadline) => cars.par.filter(car => Optimization.isApproximatelyFeasible(car.position, rr.origin, rr.time, deadline))
+          case _ => cars.par
+        }
+
+        // for the remaining candidate cars, compute their best itinerary:
+        val itinerariesForCars = candidateCars.flatMap{ car =>
           val itineraryOpt = Optimization.getBestItineraryForCar(car.passengers + passenger, car.position, rr.time, car.capacity)
           itineraryOpt.map{ itinerary =>
             val extraTime = itinerary.duration.minus(car.itinerary.duration)
@@ -69,7 +77,7 @@ class SimpleDispatcher extends Dispatcher {
           val car = bestCombination._1
           val updatedCar = car.withPassenger(passenger, bestCombination._2)
 
-          // remove old instance of the car from our car collection, and add the new one (constant time on Sets)
+          // remove old instance of the car from our car collection, and add the new one
           cars.remove(car)  // leave car for garbage collection
           cars.add(updatedCar)
           nrValidDemands += 1
@@ -88,11 +96,6 @@ class SimpleDispatcher extends Dispatcher {
     // update metrics
     totalValidDemands += nrValidDemands
 
-    nrValidDemands = 0
-    nrInvalidDemands = 0
-    nrDeniedDemands = 0
-    sumNrCarsConsidered = 0
-
     val updatesList = updates.toList  // need the toList to not collapse numbers ;)
     nrPickups = updatesList.map(_._2).sum
     nrDropoffs = updatesList.map(_._3).sum
@@ -103,8 +106,15 @@ class SimpleDispatcher extends Dispatcher {
   }
 
   override def getStats: DispatchingStats = {
-    DispatchingStats(cars.size, totalValidDemands, nrValidDemands, nrInvalidDemands, nrDeniedDemands, nrPickups,
+    val stats = DispatchingStats(cars.size, totalValidDemands, nrValidDemands, nrInvalidDemands, nrDeniedDemands, nrPickups,
       nrDropoffs, avgStretch, sumNrCarsConsidered / nrValidDemands.toDouble,
       cars.toList.map(_.passengers.count(_.pickedUp)).sum / cars.size.toDouble, lastSlotComputeTime)
+
+    nrValidDemands = 0
+    nrInvalidDemands = 0
+    nrDeniedDemands = 0
+    sumNrCarsConsidered = 0
+
+    stats
   }
 }
