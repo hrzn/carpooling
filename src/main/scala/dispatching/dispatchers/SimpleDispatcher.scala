@@ -1,5 +1,6 @@
 package dispatching.dispatchers
 import dispatching._
+import dispatching.routing.Routing
 import org.joda.time.{DateTime, Duration}
 
 
@@ -69,6 +70,7 @@ class SimpleDispatcher extends Dispatcher {
               // TODO: write an apply method in Car object accepting itinerary and passenger set?
               val newCar = Car(passenger.origin, defaultCarCapacity, itinerary, Set.empty).withPassenger(passenger, itinerary)
               cars.add(newCar)
+              nrValidDemands += 1
             case None =>  // this request is not feasible, we do nothing
               nrInvalidDemands += 1
           }
@@ -106,9 +108,11 @@ class SimpleDispatcher extends Dispatcher {
   }
 
   override def getStats: DispatchingStats = {
-    val stats = DispatchingStats(cars.size, totalValidDemands, nrValidDemands, nrInvalidDemands, nrDeniedDemands, nrPickups,
-      nrDropoffs, avgStretch, sumNrCarsConsidered / nrValidDemands.toDouble,
-      cars.toList.map(_.passengers.count(_.pickedUp)).sum / cars.size.toDouble, lastSlotComputeTime)
+    val stats = DispatchingStats(cars.size, totalValidDemands, nrValidDemands,
+      nrInvalidDemands, nrDeniedDemands, nrPickups, nrDropoffs, avgStretch,
+      sumNrCarsConsidered / nrValidDemands.toDouble,
+      cars.toList.map(_.passengers.count(_.pickedUp)).sum / cars.size.toDouble,
+      lastSlotComputeTime, Routing.getAndResetCacheStats)
 
     nrValidDemands = 0
     nrInvalidDemands = 0

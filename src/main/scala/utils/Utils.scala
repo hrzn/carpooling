@@ -1,4 +1,4 @@
-package dispatching
+package utils
 
 case class GPSPoint(lat: Double, lon: Double) {
   /**

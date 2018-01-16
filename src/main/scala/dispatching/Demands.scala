@@ -5,6 +5,7 @@ import java.nio.file.{Path, Paths}
 import com.typesafe.config.ConfigFactory
 import org.joda.time.{DateTime, LocalDate}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import utils.GPSPoint
 
 import scala.io.Source
 

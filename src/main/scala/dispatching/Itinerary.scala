@@ -2,7 +2,9 @@ package dispatching
 
 import com.graphhopper.PathWrapper
 import dispatching.CourseType.CourseType
+import dispatching.routing.Routing
 import org.joda.time.{DateTime, Duration}
+import utils.GPSPoint
 
 object CourseType extends Enumeration {
   type CourseType = Value

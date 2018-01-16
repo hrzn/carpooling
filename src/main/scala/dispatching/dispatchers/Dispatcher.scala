@@ -3,6 +3,7 @@ package dispatching.dispatchers
 import com.typesafe.config.ConfigFactory
 import dispatching.RideRequest
 import org.joda.time.{DateTime, Duration}
+import utils.CacheStats
 
 /**
   * Encapsulates what we want to measure.
@@ -12,11 +13,13 @@ import org.joda.time.{DateTime, Duration}
 case class DispatchingStats(nrCars: Int, nrDemands: Int, nrValidDemandsLastSlot: Int, nrInvalidDemandsLastSlot: Int,
                             nrDeniedDemandsLastSlot: Int, nrPickupsLastSlot: Int, nrDropoffsLastSlot: Int,
                             averageStretchLastSlot: Double, avgNrCarsConsideredPerDemandLastSlot: Double,
-                            avgNrOfPassengersPerCar: Double, slotComputeTime: Duration) {
+                            avgNrOfPassengersPerCar: Double, slotComputeTime: Duration, cacheStats: CacheStats) {
 
-  override def toString: String = s"(cars=$nrCars, total_demands=$nrDemands, valid=$nrValidDemandsLastSlot, " +
+  override def toString: String = s"(cars=$nrCars, total_served=$nrDemands, valid=$nrValidDemandsLastSlot, " +
     s"invalid=$nrInvalidDemandsLastSlot, denied=$nrDeniedDemandsLastSlot, pickups=$nrPickupsLastSlot, " +
-    s"dropoffs=$nrDropoffsLastSlot, passengers/car=$avgNrOfPassengersPerCar, cpu=${slotComputeTime.getMillis/1e3}s.)"
+    s"dropoffs=$nrDropoffsLastSlot, psgr/car=$avgNrOfPassengersPerCar, time=${slotComputeTime.getMillis/1e3}s., " +
+    s"cache_size=${cacheStats.cacheSize}, nr_hits=${cacheStats.nrHits}, nr_misses=${cacheStats.nrMisses}," +
+    s"nr_rejected_puts=${cacheStats.nrRejectedPuts})"
 }
 
 /**

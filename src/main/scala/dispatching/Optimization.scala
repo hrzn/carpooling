@@ -1,7 +1,9 @@
 package dispatching
 
 import com.typesafe.config.ConfigFactory
+import dispatching.routing.Routing
 import org.joda.time.DateTime
+import utils.GPSPoint
 
 object Optimization {
   private val conf = ConfigFactory.load()

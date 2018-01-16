@@ -1,6 +1,7 @@
 package dispatching
 
 import org.joda.time.{DateTime, Duration}
+import utils.GPSPoint
 
 /**
   * The car is the "owner" of passengers. This is because passengers need to change
