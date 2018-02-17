@@ -18,8 +18,7 @@ case class DispatchingStats(nrCars: Int, nrDemands: Int, nrValidDemandsLastSlot:
   override def toString: String = s"(cars=$nrCars, total_served=$nrDemands, valid=$nrValidDemandsLastSlot, " +
     s"invalid=$nrInvalidDemandsLastSlot, denied=$nrDeniedDemandsLastSlot, pickups=$nrPickupsLastSlot, " +
     s"dropoffs=$nrDropoffsLastSlot, psgr/car=$avgNrOfPassengersPerCar, time=${slotComputeTime.getMillis/1e3}s., " +
-    s"cache_size=${cacheStats.cacheSize}, nr_hits=${cacheStats.nrHits}, nr_misses=${cacheStats.nrMisses}," +
-    s"nr_rejected_puts=${cacheStats.nrRejectedPuts})"
+    s"cache_size=${cacheStats.cacheSize}, nr_hits=${cacheStats.nrHits}, nr_misses=${cacheStats.nrMisses}"
 }
 
 /**
