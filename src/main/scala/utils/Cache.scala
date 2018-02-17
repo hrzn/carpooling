@@ -1,6 +1,6 @@
 package utils
 
-import java.util.concurrent.ConcurrentHashMap
+import scala.collection.concurrent.TrieMap
 
 case class CacheStats(cacheSize: Int, nrHits: Long, nrMisses: Long, nrRejectedPuts: Long)
 
@@ -13,26 +13,13 @@ case class CacheStats(cacheSize: Int, nrHits: Long, nrMisses: Long, nrRejectedPu
   * @tparam V type of values
   */
 class Cache[K, V](maxSize: Int = 100000) {
-
-  private val cache = new ConcurrentHashMap[K, V]
+  private val cache = new TrieMap[K, V]
   private var cacheSize: Int = 0
   private var nrHits: Long = 0L
   private var nrMisses: Long = 0L
   private var nrRejectedPuts: Long = 0L
 
-
-  def get(key: K): Option[V] = {
-    val resJava = cache.get(key)
-
-    // we have to work around Java here
-    if (resJava != null) {
-      nrHits += 1
-      Some(resJava.asInstanceOf[V])
-    } else {
-      nrMisses += 1
-      None
-    }
-  }
+  def get(key: K): Option[V] = cache.get(key)
 
   def put(key: K, value: V): Unit = {
     if (cacheSize < maxSize){
