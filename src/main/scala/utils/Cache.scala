@@ -19,7 +19,12 @@ class Cache[K, V](maxSize: Int = 100000) {
   private var nrMisses: Long = 0L
   private var nrRejectedPuts: Long = 0L
 
-  def get(key: K): Option[V] = cache.get(key)
+  def get(key: K): Option[V] = {
+    val res = cache.get(key)
+    if (res.isDefined) nrHits += 1
+    else nrMisses += 1
+    res
+  }
 
   def put(key: K, value: V): Unit = {
     if (cacheSize < maxSize){
